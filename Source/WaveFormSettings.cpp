@@ -8,6 +8,10 @@ WaveFormSettings::WaveFormSettings (juce::AudioProcessorValueTreeState& apvts)
     gainDbParam     = apvts.getRawParameterValue ("gain");
     cutoffLowParam  = apvts.getRawParameterValue ("cutoffLow");
     cutoffHighParam = apvts.getRawParameterValue ("cutoffHigh");
+	attackParam = apvts.getRawParameterValue("attack");
+    decayParam = apvts.getRawParameterValue ("decay");
+    sustainParam = apvts.getRawParameterValue ("sustain");
+    releaseParam = apvts.getRawParameterValue ("release");
 
     jassert (waveParam && gainDbParam && cutoffLowParam && cutoffHighParam);
 }
@@ -41,4 +45,24 @@ float WaveFormSettings::getCutoffLowFrequency() const noexcept
 float WaveFormSettings::getCutoffHighFrequency() const noexcept
 {
     return (cutoffHighParam != nullptr) ? cutoffHighParam->load() : 20000.0f;
+}
+
+float WaveFormSettings::getAttackValue() const noexcept
+{
+    return (attackParam != nullptr) ? attackParam->load() : 100;
+}
+
+float WaveFormSettings::getDecayValue() const noexcept
+{
+    return (decayParam != nullptr) ? decayParam->load() : 500;
+}
+
+float WaveFormSettings::getSustainValue() const noexcept
+{
+    return (sustainParam != nullptr) ? sustainParam->load() : 0.8;
+}
+
+float WaveFormSettings::getReleaseValue() const noexcept
+{
+    return (releaseParam != nullptr) ? releaseParam->load() : 100;
 }

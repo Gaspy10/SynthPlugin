@@ -26,6 +26,10 @@ private:
     juce::Slider cutoffHighSlider;
 
     juce::Label decibelLabel;
+    juce::Slider attackSlider;
+	juce::Slider decaySlider;
+	juce::Slider sustainSlider;
+	juce::Slider releaseSlider;
 
     // GUI-only analyser (no audio thread access!)
     //AnalyserComponent analyserComponent;
@@ -38,6 +42,11 @@ private:
     std::unique_ptr<SliderAttachment> cutoffLowAttachment;
     std::unique_ptr<SliderAttachment> cutoffHighAttachment;
     std::unique_ptr<ComboBoxAttachment> waveAttachment;
+
+    std::unique_ptr<SliderAttachment> attackAttachment;
+    std::unique_ptr<SliderAttachment> decayAttachment;
+    std::unique_ptr<SliderAttachment> sustainAttachment;
+    std::unique_ptr<SliderAttachment> releaseAttachment;
 
     void timerCallback() override;
 

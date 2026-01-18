@@ -23,6 +23,27 @@ JuceSynthPluginAudioProcessor::createParameterLayout()
     layout.add(std::make_unique<APF>(
         "cutoffHigh", "Cutoff High", 20.0f, 20000.0f, 8000.0f));
 
+    // ================= ADSR =================
+    layout.add(std::make_unique<APF>(
+        "attack", "Attack (ms)",
+        juce::NormalisableRange<float>(1.0f, 5000.0f, 0.0f, 0.5f),
+        100.0f));
+
+    layout.add(std::make_unique<APF>(
+        "decay", "Decay (ms)",
+        juce::NormalisableRange<float>(1.0f, 5000.0f, 0.0f, 0.5f),
+        500.0f));
+
+    layout.add(std::make_unique<APF>(
+        "sustain", "Sustain",
+        juce::NormalisableRange<float>(0.0f, 1.0f),
+        0.8f));
+
+    layout.add(std::make_unique<APF>(
+        "release", "Release (ms)",
+        juce::NormalisableRange<float>(1.0f, 5000.0f, 0.0f, 0.5f),
+        100.0f));
+
     return layout;
 }
 

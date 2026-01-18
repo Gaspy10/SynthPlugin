@@ -15,6 +15,10 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     //addAndMakeVisible (analyserComponent);
     addAndMakeVisible (cutoffLowSlider);
     addAndMakeVisible (cutoffHighSlider);
+    addAndMakeVisible (attackSlider);
+    addAndMakeVisible (decaySlider);
+    addAndMakeVisible (releaseSlider);
+    addAndMakeVisible (sustainSlider);
 
     // ================= LABEL =================
     decibelLabel.setText ("Noise Level in dB", juce::dontSendNotification);
@@ -25,6 +29,11 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
 
     cutoffLowSlider.setRange (20.0, 20000.0);
     cutoffHighSlider.setRange (20.0, 20000.0);
+
+	attackSlider.setRange(0, 5000.0);
+	sustainSlider.setRange(0.0, 1.0);
+	decaySlider.setRange(0, 5000.0);
+	releaseSlider.setRange(0, 5000.0);
 
     // ================= WAVEFORM COMBO =================
     waveForm.addItem ("Sine", 1);
@@ -47,8 +56,20 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     waveAttachment = std::make_unique<ComboBoxAttachment> (
         apvts, "wave", waveForm);
 
+    attackAttachment = std::make_unique<SliderAttachment>(
+        apvts, "attack", attackSlider);
+
+    decayAttachment = std::make_unique<SliderAttachment>(
+        apvts, "decay", decaySlider);
+
+    sustainAttachment = std::make_unique<SliderAttachment>(
+        apvts, "sustain", sustainSlider);
+
+    releaseAttachment = std::make_unique<SliderAttachment>(
+        apvts, "release", releaseSlider);
+
     // ================= EDITOR =================
-    setSize (600, 160);
+    setSize (600, 300);
 
     startTimerHz (30); // GUI refresh only (e.g. analyser repaint)
 }
@@ -65,30 +86,48 @@ void PluginEditor::paint (juce::Graphics& g)
 //==============================================================================
 void PluginEditor::resized()
 {
-    keyboardComponent.setBounds (10, 10,
-                                getWidth() - 20,
-                                getHeight() / 2);
+    auto area = getLocalBounds().reduced(10);
 
-    waveForm.setBounds (10,
-                        getHeight() / 2 + 10,
-                        105, 30);
+    // --- Top: keyboard ---
+    const int keyboardH = 120;
+    keyboardComponent.setBounds(area.removeFromTop(keyboardH));
+    area.removeFromTop(10); // gap
 
-    decibelSlider.setBounds (120,
-                             getHeight() / 2 + 10,
-                             getWidth() - 130,
-                             30);
+    // --- Bottom: split into left/right with a gap ---
+    const int colGap = 10;
+    auto left = area.removeFromLeft(area.getWidth() / 2);
+    area.removeFromLeft(colGap);
+    auto right = area;
 
-    //analyserComponent.setBounds (getWidth() * 0.4f, getHeight() / 2 + 40, getWidth() * 0.5f, getHeight() * 0.3f);
+    // Helpers
+    const int rowH = 32;
+    const int gap = 8;
 
-    cutoffLowSlider.setBounds (10,
-                               getHeight() / 2 + 50,
-                               (getWidth() * 0.75f) / 2 - 10,
-                               30);
+    auto takeRow = [&](juce::Rectangle<int>& r)
+        {
+            auto row = r.removeFromTop(rowH);
+            r.removeFromTop(gap);
+            return row;
+        };
 
-    cutoffHighSlider.setBounds (10 + (getWidth() * 0.75f) / 2,
-                                getHeight() / 2 + 50,
-                                (getWidth() * 0.75f) / 2 - 10,
-                                30);
+    // ----- LEFT: Waveform + Gain + Cutoffs -----
+    {
+        auto row1 = takeRow(left);
+        const int waveW = 140;
+        waveForm.setBounds(row1.removeFromLeft(waveW));
+        decibelSlider.setBounds(row1);
+
+        cutoffLowSlider.setBounds(takeRow(left));
+        cutoffHighSlider.setBounds(takeRow(left));
+    }
+
+    // ----- RIGHT: ADSR stack -----
+    {
+        attackSlider.setBounds(takeRow(right));
+        decaySlider.setBounds(takeRow(right));
+        sustainSlider.setBounds(takeRow(right));
+        releaseSlider.setBounds(takeRow(right));
+    }
 }
 
 //==============================================================================

@@ -5,13 +5,7 @@
 using Coeff = juce::dsp::IIR::Coefficients<double>;
 
 WavetableVoice::WavetableVoice(WaveFormSettings& w)
-    : waveFormSettings(w) {
-
-    env.setAttackMS(100);
-    env.setDecay(500);
-    env.setSustain(0.8);
-    env.setRelease(100);
-}
+    : waveFormSettings(w) {}
 
 bool WavetableVoice::canPlaySound(juce::SynthesiserSound* sound)
 {
@@ -25,6 +19,11 @@ void WavetableVoice::startNote(int midiNoteNumber, float velocity,
     level = velocity * 0.15;
     filter.setCutoff(waveFormSettings.getCutoffLowFrequency());
 
+    env.setAttackMS(waveFormSettings.getAttackValue());
+	float a = waveFormSettings.getAttackValue();
+    env.setDecay(waveFormSettings.getDecayValue());
+    env.setSustain(waveFormSettings.getSustainValue());
+    env.setRelease(waveFormSettings.getReleaseValue());
 
     env.trigger = 1; // start attack
 }
