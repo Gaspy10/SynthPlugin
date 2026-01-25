@@ -28,6 +28,11 @@ public:
     float getReleaseValue() const noexcept;
     float getSustainValue() const noexcept;
 
+	bool getLfoOnValue() const noexcept;
+	WaveForms getLfoWaveValue() const noexcept;
+	float getLfoFreqValue() const noexcept;
+	float getLfoDepthValue() const noexcept;
+
 private:
     std::atomic<float>* waveParam      = nullptr; // choice stored as float index
     std::atomic<float>* gainDbParam    = nullptr; // -24..24
@@ -38,5 +43,10 @@ private:
 	std::atomic<float>* decayParam = nullptr; // miliseconds
 	std::atomic<float>* sustainParam = nullptr; // 0 - 1 
 	std::atomic<float>* releaseParam = nullptr; // miliseconds
+
+	std::atomic<float>* lfoOnParam = nullptr;
+	std::atomic<float>* lfoWaveParam = nullptr;
+	std::atomic<float>* lfoFreqParam = nullptr;
+	std::atomic<float>* lfoDepthParam = nullptr;
 };
 

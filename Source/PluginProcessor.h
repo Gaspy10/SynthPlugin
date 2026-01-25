@@ -51,7 +51,10 @@ public:
 private:
     // ----------------- Synth moved from SynthAudioSource -----------------
     juce::Synthesiser synth;
-    juce::AudioSampleBuffer sineTable;
+	juce::AudioBuffer<double> lfoBuffer;
+	maxiOsc tremoloOsc;
+
+    int samplesPerBlock;
 
     // IMPORTANT: This must be processor-owned and NOT depend on GUI widgets.
     WaveFormSettings waveFormSettings;

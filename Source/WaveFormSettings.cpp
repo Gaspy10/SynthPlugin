@@ -13,6 +13,11 @@ WaveFormSettings::WaveFormSettings (juce::AudioProcessorValueTreeState& apvts)
     sustainParam = apvts.getRawParameterValue ("sustain");
     releaseParam = apvts.getRawParameterValue ("release");
 
+	lfoOnParam = apvts.getRawParameterValue("tremoloOn");
+	lfoWaveParam = apvts.getRawParameterValue("tremoloWave");
+	lfoFreqParam = apvts.getRawParameterValue("tremoloFreq");
+	lfoDepthParam = apvts.getRawParameterValue("tremoloDepth");
+
     jassert (waveParam && gainDbParam && cutoffLowParam && cutoffHighParam);
 }
 
@@ -66,3 +71,34 @@ float WaveFormSettings::getReleaseValue() const noexcept
 {
     return (releaseParam != nullptr) ? releaseParam->load() : 100;
 }
+
+bool WaveFormSettings::getLfoOnValue() const noexcept
+{
+	return (lfoOnParam != nullptr) ? lfoOnParam->load() : 0.0f;
+}
+
+WaveFormSettings::WaveForms WaveFormSettings::getLfoWaveValue() const noexcept
+{
+    // In APVTS, AudioParameterChoice value is stored as float index: 0,1,2,3...
+    const int idx = (waveParam != nullptr) ? (int)waveParam->load() : 0;
+
+    switch (idx)
+    {
+    case 0: return WaveForms::sine;
+    case 1: return WaveForms::square;
+    case 2: return WaveForms::triangle;
+    case 3: return WaveForms::sawtooth;
+    default: return WaveForms::sine;
+    }
+}
+
+float WaveFormSettings::getLfoFreqValue() const noexcept
+{
+	return (lfoFreqParam != nullptr) ? lfoFreqParam->load() : 1.0f;
+}
+
+float WaveFormSettings::getLfoDepthValue() const noexcept
+{
+	return (lfoDepthParam != nullptr) ? lfoDepthParam->load() : 0.f;
+}
+

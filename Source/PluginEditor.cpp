@@ -7,21 +7,29 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
       keyboardComponent (processor.keyboardState,
                          juce::MidiKeyboardComponent::horizontalKeyboard)
 {
-    // ================= ADD COMPONENTS =================
     addAndMakeVisible (keyboardComponent);
+
     addAndMakeVisible (waveForm);
     addAndMakeVisible (decibelSlider);
     addAndMakeVisible (decibelLabel);
-    //addAndMakeVisible (analyserComponent);
+	
     addAndMakeVisible (cutoffLowSlider);
     addAndMakeVisible (cutoffHighSlider);
+
     addAndMakeVisible (attackSlider);
     addAndMakeVisible (decaySlider);
     addAndMakeVisible (releaseSlider);
     addAndMakeVisible (sustainSlider);
 
+    addAndMakeVisible(tremoloLabel);
+	addAndMakeVisible (tremoloButton);
+    addAndMakeVisible(tremoloWaveForm);
+    addAndMakeVisible(tremoloFreqSlider);
+	addAndMakeVisible(tremoloDepthSlider);
+
     // ================= LABEL =================
     decibelLabel.setText ("Noise Level in dB", juce::dontSendNotification);
+	tremoloLabel.setText("Tremolo: ", juce::dontSendNotification);
 
     // ================= SLIDERS =================
     decibelSlider.setRange (-24.0, 24.0);
@@ -35,11 +43,17 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
 	decaySlider.setRange(0, 5000.0);
 	releaseSlider.setRange(0, 5000.0);
 
-    // ================= WAVEFORM COMBO =================
     waveForm.addItem ("Sine", 1);
     waveForm.addItem ("Square", 2);
     waveForm.addItem ("Triangle", 3);
     waveForm.addItem ("Sawtooth", 4);
+
+    tremoloWaveForm.addItem("Sine", 1);
+    tremoloWaveForm.addItem("Square", 2);
+    tremoloWaveForm.addItem("Triangle", 3);
+    tremoloWaveForm.addItem("Sawtooth", 4);
+	tremoloFreqSlider.setRange(0.1, 20.0);
+	tremoloDepthSlider.setRange(0.0, 1.0);
 
     // ================= PARAMETER ATTACHMENTS =================
     auto& apvts = processor.apvts;
@@ -68,8 +82,20 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     releaseAttachment = std::make_unique<SliderAttachment>(
         apvts, "release", releaseSlider);
 
+    tremoloWaveAttachment = std::make_unique<ComboBoxAttachment>(
+        apvts, "tremoloWave", tremoloWaveForm);
+
+	tremoloButtonAttachment = std::make_unique<ToggleButtonAttachment>(
+		apvts, "tremoloOn", tremoloButton);
+
+	tremoloDepthAttachment = std::make_unique<SliderAttachment>(
+		apvts, "tremoloDepth", tremoloDepthSlider);
+
+	tremoloFreqAttachment = std::make_unique<SliderAttachment>(
+		apvts, "tremoloFreq", tremoloFreqSlider);
+
     // ================= EDITOR =================
-    setSize (600, 300);
+    setSize (600, 400);
 
     startTimerHz (30); // GUI refresh only (e.g. analyser repaint)
 }
@@ -103,12 +129,15 @@ void PluginEditor::resized()
     const int rowH = 32;
     const int gap = 8;
 
+    right.setHeight(4 * rowH + 4 * gap);
+    left.setHeight(4* rowH + 4 * gap);
+
     auto takeRow = [&](juce::Rectangle<int>& r)
-        {
-            auto row = r.removeFromTop(rowH);
-            r.removeFromTop(gap);
-            return row;
-        };
+    {
+        auto row = r.removeFromTop(rowH);
+        r.removeFromTop(gap);
+        return row;
+    };
 
     // ----- LEFT: Waveform + Gain + Cutoffs -----
     {
@@ -127,6 +156,25 @@ void PluginEditor::resized()
         decaySlider.setBounds(takeRow(right));
         sustainSlider.setBounds(takeRow(right));
         releaseSlider.setBounds(takeRow(right));
+    }
+
+    //LFO
+    {
+        auto area = juce::Rectangle<int>(
+            left.getX(),
+            right.getBottom() + 10,
+            getWidth(),
+            rowH
+        ).reduced(5, 0);
+
+        tremoloLabel.setBounds(area.removeFromLeft(60));
+        tremoloButton.setBounds(area.removeFromLeft(30));
+        tremoloWaveForm.setBounds(area.removeFromLeft(waveForm.getWidth()));
+        area.removeFromLeft(5);
+        tremoloFreqSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
+        area.removeFromLeft(5);
+		tremoloDepthSlider.setBounds(takeRow(area));
+
     }
 }
 

@@ -21,15 +21,22 @@ private:
     juce::MidiKeyboardComponent keyboardComponent;
 
     juce::ComboBox waveForm;
+	juce::ComboBox tremoloWaveForm;
     juce::Slider decibelSlider;
     juce::Slider cutoffLowSlider;
     juce::Slider cutoffHighSlider;
 
     juce::Label decibelLabel;
+
     juce::Slider attackSlider;
 	juce::Slider decaySlider;
 	juce::Slider sustainSlider;
 	juce::Slider releaseSlider;
+
+    juce::Label tremoloLabel;
+    juce::ToggleButton tremoloButton;
+	juce::Slider tremoloFreqSlider;
+	juce::Slider tremoloDepthSlider;
 
     // GUI-only analyser (no audio thread access!)
     //AnalyserComponent analyserComponent;
@@ -37,11 +44,17 @@ private:
     // ================= PARAMETER ATTACHMENTS =================
     using SliderAttachment  = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
+	using ToggleButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     std::unique_ptr<SliderAttachment> gainAttachment;
     std::unique_ptr<SliderAttachment> cutoffLowAttachment;
     std::unique_ptr<SliderAttachment> cutoffHighAttachment;
     std::unique_ptr<ComboBoxAttachment> waveAttachment;
+
+    std::unique_ptr<ComboBoxAttachment> tremoloWaveAttachment;
+	std::unique_ptr<ToggleButtonAttachment> tremoloButtonAttachment;
+	std::unique_ptr<SliderAttachment> tremoloFreqAttachment;
+	std::unique_ptr<SliderAttachment> tremoloDepthAttachment;
 
     std::unique_ptr<SliderAttachment> attackAttachment;
     std::unique_ptr<SliderAttachment> decayAttachment;

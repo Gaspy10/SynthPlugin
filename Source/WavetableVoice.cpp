@@ -18,7 +18,7 @@ void WavetableVoice::startNote(int midiNoteNumber, float velocity,
     frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     level = velocity * 0.15;
     filter.setCutoff(waveFormSettings.getCutoffLowFrequency(), waveFormSettings.getCutoffHighFrequency());
-
+    
     env.setAttackMS(waveFormSettings.getAttackValue());
     env.setDecay(waveFormSettings.getDecayValue());
     env.setSustain(waveFormSettings.getSustainValue());
@@ -47,7 +47,7 @@ void WavetableVoice::renderNextBlock(juce::AudioSampleBuffer& outputBuffer,
         envValue = env.adsr(1.0, env.trigger);
 
         double sample = filter.processSample(getNextSample());
-        sample = amplify(sample * level * envValue);
+        sample = amplify(sample * level * envValue * globalLfoData[startSample]);
 
         for (int i = outputBuffer.getNumChannels(); --i >= 0;)
             outputBuffer.addSample(i, startSample, sample);
@@ -92,4 +92,9 @@ double WavetableVoice::getNextSample()
 void WavetableVoice::prepare(int sampleRate)
 {
 	filter = FIRFilter{ 101, static_cast<float>(sampleRate) };
+}
+
+void WavetableVoice::setGlobalLfo(const double* data)
+{
+	globalLfoData = data;
 }

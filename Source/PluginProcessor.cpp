@@ -14,6 +14,10 @@ JuceSynthPluginAudioProcessor::createParameterLayout()
         "wave", "Wave",
         juce::StringArray{ "Sine", "Square", "Triangle", "Sawtooth" }, 0));
 
+    layout.add(std::make_unique<APC>(
+        "tremoloWave", "TremoloWave",
+        juce::StringArray{ "Sine", "Square", "Triangle", "Sawtooth" }, 0));
+
     layout.add(std::make_unique<APF>(
         "gain", "Gain (dB)", -24.0f, 24.0f, 0.0f));
 
@@ -44,6 +48,23 @@ JuceSynthPluginAudioProcessor::createParameterLayout()
         juce::NormalisableRange<float>(1.0f, 5000.0f, 0.0f, 0.5f),
         100.0f));
 
+	layout.add(std::make_unique<APF>(
+		"tremoloFreq", "Tremolo Frequency",
+		juce::NormalisableRange<float>(0.1f, 20.0f),
+		5.0f));
+
+	layout.add(std::make_unique<APF>(
+		"tremoloDepth", "Tremolo Depth",
+		juce::NormalisableRange<float>(0.0f, 1.0f),
+		0.5f));
+
+    layout.add(std::make_unique<juce::AudioParameterBool>(
+        "tremoloOn",
+        "Tremolo On",
+        false
+    ));
+
+
     return layout;
 }
 
@@ -54,7 +75,7 @@ JuceSynthPluginAudioProcessor::JuceSynthPluginAudioProcessor()
     , waveFormSettings(apvts) // <-- you must implement this ctor (see note below)
 {
     // Ported from SynthAudioSource constructor:
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 10; ++i)
         synth.addVoice(new WavetableVoice(waveFormSettings));
 
     synth.addSound(new WavetableSound());
@@ -76,8 +97,11 @@ const juce::String JuceSynthPluginAudioProcessor::getProgramName(int) { return {
 void JuceSynthPluginAudioProcessor::changeProgramName(int, const juce::String&) {}
 
 //==============================================================================
-void JuceSynthPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+void JuceSynthPluginAudioProcessor::prepareToPlay(double sampleRate, int _samplesPerBlock)
 {
+	samplesPerBlock = _samplesPerBlock;
+    lfoBuffer.setSize(1, samplesPerBlock);
+
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
     // Ported from your SynthAudioSource::prepareToPlay:
@@ -104,6 +128,42 @@ void JuceSynthPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffe
 
     // If you're a synth (no audio input), clear buffer first
     buffer.clear();
+
+    for (int i = 0; i < samplesPerBlock; ++i) {
+        auto c = waveFormSettings.getLfoWaveValue();
+		auto freq = waveFormSettings.getLfoFreqValue();
+        auto depth = waveFormSettings.getLfoDepthValue();
+
+		if (!waveFormSettings.getLfoOnValue()) {
+			lfoBuffer.setSample(0, i, 1.0);
+			continue;
+		}
+
+        lfoBuffer.setSample(0, i, 1 - 0.5*depth + 0.5*depth*tremoloOsc.sinewave(freq));
+
+        /*switch (c) {
+            case WaveFormSettings::WaveForms::sine: {
+                lfoBuffer.setSample(0, i, tremoloOsc.sinewave(1));
+            }
+            case WaveFormSettings::WaveForms::square: {
+                lfoBuffer.setSample(0, i, 1 - 0.5 * depth + 0.5 * depth * tremoloOsc.square(freq));
+            }
+            case WaveFormSettings::WaveForms::triangle: {
+                lfoBuffer.setSample(0, i, 1 - 0.5 * depth + 0.5 * depth * tremoloOsc.triangle(freq));
+            }
+            case WaveFormSettings::WaveForms::sawtooth: {
+                lfoBuffer.setSample(0, i, 1 - 0.5 * depth + 0.5 * depth * tremoloOsc.saw(freq));
+            }
+        }*/
+    }
+
+	for (int i = 0; i < synth.getNumVoices(); ++i)
+	{
+		if (auto* voice = dynamic_cast<WavetableVoice*>(synth.getVoice(i)))
+		{
+			voice->setGlobalLfo(lfoBuffer.getReadPointer(0));
+		}
+	}
 
     // Render
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());

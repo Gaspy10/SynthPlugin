@@ -28,6 +28,7 @@ public:
     void renderNextBlock(juce::AudioSampleBuffer& outputBuffer, int startSample, int numSamples) override;
     void setCurrentPlaybackSampleRate(double newRate) override;
     void prepare(int sampleRate);
+    void setGlobalLfo(const double* data);
 
 private:
     double getNextSample();
@@ -39,6 +40,8 @@ private:
     double level = 0.0;
     double tailOff = 0.0;
     float frequency = 0;
+
+	const double* globalLfoData = nullptr;
 
     double envValue = 0.0;
 
