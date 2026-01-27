@@ -131,30 +131,32 @@ void JuceSynthPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffe
 
     for (int i = 0; i < samplesPerBlock; ++i) {
         auto c = waveFormSettings.getLfoWaveValue();
-		auto freq = waveFormSettings.getLfoFreqValue();
+        auto freq = waveFormSettings.getLfoFreqValue();
         auto depth = waveFormSettings.getLfoDepthValue();
 
-		if (!waveFormSettings.getLfoOnValue()) {
-			lfoBuffer.setSample(0, i, 1.0);
-			continue;
-		}
+        if (!waveFormSettings.getLfoOnValue()) {
+            lfoBuffer.setSample(0, i, 1.0);
+            continue;
+        }
 
-        lfoBuffer.setSample(0, i, 1 - 0.5*depth + 0.5*depth*tremoloOsc.sinewave(freq));
-
-        /*switch (c) {
+        switch (c) {
             case WaveFormSettings::WaveForms::sine: {
-                lfoBuffer.setSample(0, i, tremoloOsc.sinewave(1));
+                lfoBuffer.setSample(0, i, 1 - 0.5 * depth + 0.5 * depth * tremoloOsc.sinewave(freq));
+                break;
             }
             case WaveFormSettings::WaveForms::square: {
                 lfoBuffer.setSample(0, i, 1 - 0.5 * depth + 0.5 * depth * tremoloOsc.square(freq));
+                break;
             }
             case WaveFormSettings::WaveForms::triangle: {
                 lfoBuffer.setSample(0, i, 1 - 0.5 * depth + 0.5 * depth * tremoloOsc.triangle(freq));
+                break;
             }
             case WaveFormSettings::WaveForms::sawtooth: {
                 lfoBuffer.setSample(0, i, 1 - 0.5 * depth + 0.5 * depth * tremoloOsc.saw(freq));
+                break;
             }
-        }*/
+        }
     }
 
 	for (int i = 0; i < synth.getNumVoices(); ++i)

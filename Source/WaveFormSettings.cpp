@@ -80,7 +80,7 @@ bool WaveFormSettings::getLfoOnValue() const noexcept
 WaveFormSettings::WaveForms WaveFormSettings::getLfoWaveValue() const noexcept
 {
     // In APVTS, AudioParameterChoice value is stored as float index: 0,1,2,3...
-    const int idx = (waveParam != nullptr) ? (int)waveParam->load() : 0;
+    const int idx = (lfoWaveParam != nullptr) ? (int)lfoWaveParam->load() : 0;
 
     switch (idx)
     {

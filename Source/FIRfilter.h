@@ -21,9 +21,6 @@ public:
         setCutoff(cutoffLow, cutoffHigh); // default until user sets
     }
 
-    // ============================================================
-    //      Change cutoff frequency dynamically
-    // ============================================================
     void setCutoff(float cutoffHzLow, float cutoffHzHigh)
     {
         cutoffLow = cutoffHzLow;
@@ -38,9 +35,6 @@ public:
         }
     }
 
-    // ============================================================
-    //      Process single sample (real-time safe)
-    // ============================================================
     float processSample(float x) noexcept
     {
         buffer[index] = x;
@@ -59,9 +53,6 @@ public:
         return y;
     }
 
-    // ============================================================
-    //      Process JUCE AudioBuffer
-    // ============================================================
     void processBlock(juce::AudioBuffer<float>& bufferToProcess)
     {
         const int numSamples = bufferToProcess.getNumSamples();
@@ -91,9 +82,6 @@ private:
 
     int index = 0;
 
-    // ============================================================
-    //      Recompute coefficients using Hamming-windowed sinc
-    // ============================================================
     void generateCoefficients(float cutoffHz, std::vector<float> & c)
     {
         const float fc = cutoffHz / fs;  // normalized 0..0.5
