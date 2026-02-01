@@ -44,9 +44,9 @@ private:
 	std::atomic<float>* sustainParam = nullptr; // 0 - 1 
 	std::atomic<float>* releaseParam = nullptr; // miliseconds
 
-	std::atomic<float>* lfoOnParam = nullptr;
-	std::atomic<float>* lfoWaveParam = nullptr;
-	std::atomic<float>* lfoFreqParam = nullptr;
-	std::atomic<float>* lfoDepthParam = nullptr;
+	std::atomic<float>* lfoOnParam = nullptr; // on or off
+	std::atomic<float>* lfoWaveParam = nullptr; // choice stored as float index
+	std::atomic<float>* lfoFreqParam = nullptr; // Hz
+	std::atomic<float>* lfoDepthParam = nullptr; // 0 - 1
 };
 

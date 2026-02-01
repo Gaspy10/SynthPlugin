@@ -1,0 +1,27 @@
+@startuml
+
+class "maxiOsc" as maxiOscA
+
+PluginProcessor *-- "1" Synthesiser
+PluginProcessor *-- "10" WavetableVoice
+WavetableVoice *-- "1" maxiOsc
+WavetableVoice *-- "1" maxiEnv
+WavetableVoice *-- "1" FIRFilter
+PluginProcessor *-- "1" WaveFormSettings
+WaveFormSettings -- PluginEditor
+Synthesiser -- WavetableVoice
+WavetableVoice -- WaveFormSettings
+PluginProcessor *-- "1" maxiOscA
+PluginProcessor *-- "1" WavetableSound
+WavetableSound -- Synthesiser 
+PluginProcessor *-- MidiKeyboardState
+MidiKeyboardState -- MidiKeyboardComponent
+PluginProcessor *-- "1" AudioBuffer
+AudioBuffer -- WavetableVoice
+
+maxiOscA -- WavetableVoice
+
+PluginEditor  *-- "1" MidiKeyboardComponent 
+
+
+@enduml

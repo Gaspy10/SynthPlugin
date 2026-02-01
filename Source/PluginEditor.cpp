@@ -95,7 +95,7 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
 		apvts, "tremoloFreq", tremoloFreqSlider);
 
     // ================= EDITOR =================
-    setSize (600, 400);
+    setSize (600, 450);
 
     startTimerHz (30); // GUI refresh only (e.g. analyser repaint)
 }
@@ -158,24 +158,42 @@ void PluginEditor::resized()
         releaseSlider.setBounds(takeRow(right));
     }
 
-    //LFO
-    {
-        auto area = juce::Rectangle<int>(
-            left.getX(),
-            right.getBottom() + 10,
-            getWidth(),
-            rowH
-        ).reduced(5, 0);
+    auto tremoloArea = juce::Rectangle<int>(
+        left.getX(),
+        right.getBottom() + 10,
+        getWidth(),
+        rowH
+    ).reduced(5, 0);
 
-        tremoloLabel.setBounds(area.removeFromLeft(60));
-        tremoloButton.setBounds(area.removeFromLeft(30));
-        tremoloWaveForm.setBounds(area.removeFromLeft(waveForm.getWidth()));
-        area.removeFromLeft(5);
-        tremoloFreqSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
-        area.removeFromLeft(5);
-		tremoloDepthSlider.setBounds(takeRow(area));
+    //tremolo
+    {
+        tremoloLabel.setBounds(tremoloArea.removeFromLeft(60));
+        tremoloButton.setBounds(tremoloArea.removeFromLeft(30));
+        tremoloWaveForm.setBounds(tremoloArea.removeFromLeft(waveForm.getWidth()));
+        tremoloArea.removeFromLeft(5);
+        tremoloFreqSlider.setBounds(tremoloArea.removeFromLeft(tremoloArea.getWidth() / 2));
+        tremoloArea.removeFromLeft(5);
+		tremoloDepthSlider.setBounds(takeRow(tremoloArea));
 
     }
+
+    auto vibratoArea = juce::Rectangle<int>(
+        tremoloArea.getX(),
+        right.getBottom() + rowH + 10,
+        getWidth(),
+        rowH
+    ).reduced(5, 0);
+
+    //vibrato
+    /* {
+        tremoloLabel.setBounds(vibratoArea.removeFromLeft(60));
+        tremoloButton.setBounds(vibratoArea.removeFromLeft(30));
+        tremoloWaveForm.setBounds(vibratoArea.removeFromLeft(waveForm.getWidth()));
+        vibratoArea.removeFromLeft(5);
+        tremoloFreqSlider.setBounds(vibratoArea.removeFromLeft(vibratoArea.getWidth() / 2));
+        vibratoArea.removeFromLeft(5);
+        tremoloDepthSlider.setBounds(takeRow(vibratoArea));
+    }*/
 }
 
 //==============================================================================
