@@ -2,6 +2,70 @@
 
 class "maxiOsc" as maxiOscA
 
+class PluginProcessor{
+    processBlock()
+}
+
+class maxiOsc{
+    sinewave()
+    saw()
+    triangle()
+    square()
+}
+
+class maxiOscA{
+    sinewave()
+    saw()
+    triangle()
+    square()
+}
+
+class WavetableVoice{
+    renderNextBlock()
+}
+
+class FIRFilter{
+    setCutoff()
+    processSample()
+}
+
+class maxiEnv{
+    adsr()
+    setAttackMS()
+    setDecay()
+    setSustain()
+    setRelease()
+}
+
+class Synthesiser{
+    addVoice()
+    addSound()
+}
+
+class PluginEditor{
+    resized()
+}
+
+class WaveFormSettings{
+    getVelocity()
+    getCutoffLowFrequency()
+    getCutoffHighFrequency()
+    getAttackValue()
+}
+
+class AudioBuffer{
+    setSample()
+}
+
+class MidiKeyboardState{
+    processNextMidiBuffer()
+}
+
+class MidiKeyboardComponent{
+    handleNoteOn()
+    handleNoteOff()
+}
+
 PluginProcessor *-- "1" Synthesiser
 PluginProcessor *-- "10" WavetableVoice
 WavetableVoice *-- "1" maxiOsc
@@ -14,7 +78,7 @@ WavetableVoice -- WaveFormSettings
 PluginProcessor *-- "1" maxiOscA
 PluginProcessor *-- "1" WavetableSound
 WavetableSound -- Synthesiser 
-PluginProcessor *-- MidiKeyboardState
+PluginProcessor *-- "1" MidiKeyboardState
 MidiKeyboardState -- MidiKeyboardComponent
 PluginProcessor *-- "1" AudioBuffer
 AudioBuffer -- WavetableVoice
