@@ -2,22 +2,22 @@
 
 class "maxiOsc" as maxiOscA
 
-class PluginProcessor{
+class JuceSynthPluginAudioProcessor{
     processBlock()
 }
 
 class maxiOsc{
-    sinewave()
-    saw()
-    triangle()
-    square()
+    sinewave(double frequency)
+    saw(double frequency)
+    triangle(double frequency)
+    square(double frequency)
 }
 
 class maxiOscA{
-    sinewave()
-    saw()
-    triangle()
-    square()
+    sinewave(double frequency)
+    saw(double frequency)
+    triangle(double frequency)
+    square(double frequency)
 }
 
 class WavetableVoice{
@@ -25,21 +25,21 @@ class WavetableVoice{
 }
 
 class FIRFilter{
-    setCutoff()
-    processSample()
+    setCutoff(float cutoffHzLow, float cutoffHzHigh)
+    processSample(float inputSample)
 }
 
 class maxiEnv{
-    adsr()
-    setAttackMS()
-    setDecay()
-    setSustain()
-    setRelease()
+    adsr(double input, int trigger)
+    setAttackMS(double attackMS)
+    setDecay(double decaykMS()
+    setSustain(double sustainMS)
+    setRelease(double releaseMS)
 }
 
 class Synthesiser{
-    addVoice()
-    addSound()
+    addVoice(SynthesiserVoice* const newVoice)
+    addSound(const SynthesiserSound::Ptr& newSound)
 }
 
 class PluginEditor{
@@ -54,7 +54,7 @@ class WaveFormSettings{
 }
 
 class AudioBuffer{
-    setSample()
+    setSample(int destChannel, int destSample, Type newValue)
 }
 
 class MidiKeyboardState{
@@ -66,24 +66,21 @@ class MidiKeyboardComponent{
     handleNoteOff()
 }
 
-PluginProcessor *-- "1" Synthesiser
-PluginProcessor *-- "10" WavetableVoice
+JuceSynthPluginAudioProcessor *-- "1" Synthesiser
+JuceSynthPluginAudioProcessor --> WavetableVoice
 WavetableVoice *-- "1" maxiOsc
 WavetableVoice *-- "1" maxiEnv
 WavetableVoice *-- "1" FIRFilter
-PluginProcessor *-- "1" WaveFormSettings
-WaveFormSettings -- PluginEditor
-Synthesiser -- WavetableVoice
-WavetableVoice -- WaveFormSettings
-PluginProcessor *-- "1" maxiOscA
-PluginProcessor *-- "1" WavetableSound
-WavetableSound -- Synthesiser 
-PluginProcessor *-- "1" MidiKeyboardState
-MidiKeyboardState -- MidiKeyboardComponent
-PluginProcessor *-- "1" AudioBuffer
-AudioBuffer -- WavetableVoice
-
-maxiOscA -- WavetableVoice
+JuceSynthPluginAudioProcessor *-- "1" WaveFormSettings
+WaveFormSettings <-- PluginEditor
+Synthesiser *-- "10" WavetableVoice
+WavetableVoice --> WaveFormSettings
+JuceSynthPluginAudioProcessor *-- "1" maxiOscA
+WavetableSound "1" --* Synthesiser 
+JuceSynthPluginAudioProcessor *-- "1" MidiKeyboardState
+MidiKeyboardState <-- MidiKeyboardComponent
+JuceSynthPluginAudioProcessor *-- "1" AudioBuffer
+AudioBuffer <-- WavetableVoice
 
 PluginEditor  *-- "1" MidiKeyboardComponent 
 
