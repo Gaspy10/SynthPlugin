@@ -98,7 +98,7 @@ private:
                 / (juce::MathConstants<float>::pi * k);
 
             // Hamming window
-            float w = 0.54f - 0.46f * std::cos(2.0f * juce::MathConstants<float>::pi * n / M);
+            float w = 0.53836 - 0.46164 * std::cos(2.0f * juce::MathConstants<float>::pi * n / M);
 
             c[n] = sinc * w;
         }

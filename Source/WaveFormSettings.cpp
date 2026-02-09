@@ -2,8 +2,6 @@
 
 WaveFormSettings::WaveFormSettings (juce::AudioProcessorValueTreeState& apvts)
 {
-    // These IDs must match your APVTS layout:
-    // "wave", "gain", "cutoffLow", "cutoffHigh"
     waveParam       = apvts.getRawParameterValue ("wave");
     gainDbParam     = apvts.getRawParameterValue ("gain");
     cutoffLowParam  = apvts.getRawParameterValue ("cutoffLow");
@@ -23,7 +21,6 @@ WaveFormSettings::WaveFormSettings (juce::AudioProcessorValueTreeState& apvts)
 
 WaveFormSettings::WaveForms WaveFormSettings::getSelectedWaveForm() const noexcept
 {
-    // In APVTS, AudioParameterChoice value is stored as float index: 0,1,2,3...
     const int idx = (waveParam != nullptr) ? (int) waveParam->load() : 0;
 
     switch (idx)
@@ -79,7 +76,6 @@ bool WaveFormSettings::getLfoOnValue() const noexcept
 
 WaveFormSettings::WaveForms WaveFormSettings::getLfoWaveValue() const noexcept
 {
-    // In APVTS, AudioParameterChoice value is stored as float index: 0,1,2,3...
     const int idx = (lfoWaveParam != nullptr) ? (int)lfoWaveParam->load() : 0;
 
     switch (idx)

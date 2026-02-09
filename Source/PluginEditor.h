@@ -2,6 +2,8 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "PresetGenerationJob.h"
+#include "OpenAIClient.h"
 
 class PluginEditor : public juce::AudioProcessorEditor,
                      private juce::Timer
@@ -14,10 +16,20 @@ public:
     void resized() override;
 
 private:
+    juce::ThreadPool threadPool{ 1 };
+    OpenAIClient openAIClient;
+
+    void applyPreset(const juce::var& result);
+
+    void generatePreset();
+    static bool getParamsObject(const juce::var& root, juce::DynamicObject*& outParamsObj);
+    void setParamFromFloat(const juce::String& paramId, float value);
+    void setChoiceParamFromComboIndex(const juce::String& paramId, int comboIndex1toN);
+
     // Reference to the processor (owned by host)
     JuceSynthPluginAudioProcessor& processor;
 
-    // ================= GUI COMPONENTS =================
+    // gui components
     juce::MidiKeyboardComponent keyboardComponent;
 
     juce::ComboBox waveForm;
@@ -38,10 +50,13 @@ private:
 	juce::Slider tremoloFreqSlider;
 	juce::Slider tremoloDepthSlider;
 
+    juce::TextEditor promptBox;
+    juce::TextButton generateButton{ "Generate preset" };
+
     // GUI-only analyser (no audio thread access!)
     //AnalyserComponent analyserComponent;
 
-    // ================= PARAMETER ATTACHMENTS =================
+    // parameter attachments
     using SliderAttachment  = juce::AudioProcessorValueTreeState::SliderAttachment;
     using ComboBoxAttachment = juce::AudioProcessorValueTreeState::ComboBoxAttachment;
 	using ToggleButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;

@@ -35,8 +35,6 @@ private:
     double amplify(double sample) const;
 
     // These must be declared here:
-    double currentAngle = 0.0;
-    double angleDelta = 0.0;
     double level = 0.0;
     double tailOff = 0.0;
     float frequency = 0;

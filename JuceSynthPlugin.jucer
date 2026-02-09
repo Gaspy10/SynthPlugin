@@ -4,12 +4,19 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
   <MAINGROUP id="mDIx8V" name="JuceSynthPlugin">
     <GROUP id="{E03966CC-CB49-4BD6-72C6-B2CA2EAD5769}" name="Source">
-      <FILE id="I10Bgj" name="FIRfilter.h" compile="0" resource="0" file="Source/FIRfilter.h"/>
+      <FILE id="a1inZA" name="OpenAIClient.cpp" compile="1" resource="0"
+            file="Source/OpenAIClient.cpp"/>
+      <FILE id="i7VhWZ" name="OpenAIClient.h" compile="0" resource="0" file="Source/OpenAIClient.h"/>
       <GROUP id="{EC7A3933-9FDC-1445-B699-4286737A3CAF}" name="Maximilian">
         <FILE id="YGDSSn" name="maximilian.cpp" compile="1" resource="0" file="Source/maximilian.cpp"/>
         <FILE id="PpR68u" name="maximilian.h" compile="0" resource="0" file="Source/maximilian.h"/>
         <FILE id="YeJeK1" name="sineTable.h" compile="0" resource="0" file="Source/sineTable.h"/>
       </GROUP>
+      <FILE id="LUWpWv" name="PresetGenerationJob.h" compile="0" resource="0"
+            file="Source/PresetGenerationJob.h"/>
+      <FILE id="h8hqM7" name="PresetGenerationJob.cpp" compile="1" resource="0"
+            file="Source/PresetGenerationJob.cpp"/>
+      <FILE id="I10Bgj" name="FIRfilter.h" compile="0" resource="0" file="Source/FIRfilter.h"/>
       <FILE id="nLQ982" name="WavetableVoice.h" compile="0" resource="0"
             file="Source/WavetableVoice.h"/>
       <FILE id="lGtcbQ" name="WavetableVoice.cpp" compile="1" resource="0"

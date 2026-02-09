@@ -116,7 +116,9 @@ OBJECTS_STANDALONE_PLUGIN := \
   $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o \
 
 OBJECTS_SHARED_CODE := \
+  $(JUCE_OBJDIR)/OpenAIClient_68142066.o \
   $(JUCE_OBJDIR)/maximilian_2eef09b4.o \
+  $(JUCE_OBJDIR)/PresetGenerationJob_8b1a3e47.o \
   $(JUCE_OBJDIR)/WavetableVoice_355fbac6.o \
   $(JUCE_OBJDIR)/WavetableSound_6146c23.o \
   $(JUCE_OBJDIR)/WaveFormSettings_cb353929.o \
@@ -204,9 +206,19 @@ $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o: ../../Juc
 	@echo "Compiling include_juce_audio_plugin_client_Standalone.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_STANDALONE_PLUGIN) $(JUCE_CFLAGS_STANDALONE_PLUGIN) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/OpenAIClient_68142066.o: ../../Source/OpenAIClient.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling OpenAIClient.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/maximilian_2eef09b4.o: ../../Source/maximilian.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling maximilian.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/PresetGenerationJob_8b1a3e47.o: ../../Source/PresetGenerationJob.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling PresetGenerationJob.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/WavetableVoice_355fbac6.o: ../../Source/WavetableVoice.cpp

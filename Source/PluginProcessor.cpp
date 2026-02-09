@@ -68,13 +68,11 @@ JuceSynthPluginAudioProcessor::createParameterLayout()
     return layout;
 }
 
-//==============================================================================
 JuceSynthPluginAudioProcessor::JuceSynthPluginAudioProcessor()
     : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true))
     , apvts(*this, nullptr, "PARAMS", createParameterLayout())
-    , waveFormSettings(apvts) // <-- you must implement this ctor (see note below)
+    , waveFormSettings(apvts)
 {
-    // Ported from SynthAudioSource constructor:
     for (int i = 0; i < 10; ++i)
         synth.addVoice(new WavetableVoice(waveFormSettings));
 
@@ -96,7 +94,6 @@ void JuceSynthPluginAudioProcessor::setCurrentProgram(int) {}
 const juce::String JuceSynthPluginAudioProcessor::getProgramName(int) { return {}; }
 void JuceSynthPluginAudioProcessor::changeProgramName(int, const juce::String&) {}
 
-//==============================================================================
 void JuceSynthPluginAudioProcessor::prepareToPlay(double sampleRate, int _samplesPerBlock)
 {
 	samplesPerBlock = _samplesPerBlock;
@@ -104,16 +101,15 @@ void JuceSynthPluginAudioProcessor::prepareToPlay(double sampleRate, int _sample
 
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
-    // Ported from your SynthAudioSource::prepareToPlay:
+    // Ported from SynthAudioSource::prepareToPlay:
     maxiSettings::setup(sampleRate, 2, 1024);
 
-    // If your voices/filters need reset, do it here (safe, not realtime).
+    // If voices/filters need reset, do it here (safe, not realtime).
     for (int i = 0; i < synth.getNumVoices(); ++i)
         if (auto* v = dynamic_cast<WavetableVoice*>(synth.getVoice(i)))
             v->prepare(sampleRate);
 }
 
-//==============================================================================
 void JuceSynthPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     juce::MidiBuffer& midiMessages)
 {
@@ -126,7 +122,6 @@ void JuceSynthPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffe
     // Merge on-screen keyboard MIDI into the host MIDI buffer
     keyboardState.processNextMidiBuffer(midiMessages, 0, buffer.getNumSamples(), true);
 
-    // If you're a synth (no audio input), clear buffer first
     buffer.clear();
 
     for (int i = 0; i < samplesPerBlock; ++i) {
@@ -173,8 +168,6 @@ void JuceSynthPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffe
     // Apply gain parameter (optional; you can also apply inside voices)
     const float gainDb = apvts.getRawParameterValue("gain")->load();
     buffer.applyGain(juce::Decibels::decibelsToGain(gainDb));
-
-    // IMPORTANT: No DBG/printing here.
 }
 
 //==============================================================================

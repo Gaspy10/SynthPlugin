@@ -5,8 +5,20 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     : AudioProcessorEditor (&p),
       processor (p),
       keyboardComponent (processor.keyboardState,
-                         juce::MidiKeyboardComponent::horizontalKeyboard)
-{
+                         juce::MidiKeyboardComponent::horizontalKeyboard),
+        openAIClient(OpenAIClient::Config{
+        /*apiKey*/   "",
+        /*model*/    "gpt-5.2",
+        /*timeoutMs*/15000,
+        /*maxOutputTokens*/500,
+        /*store*/    false
+            })
+{   
+    generateButton.onClick = [this]()
+    {
+        generatePreset(); // background thread
+    };
+
     addAndMakeVisible (keyboardComponent);
 
     addAndMakeVisible (waveForm);
@@ -26,6 +38,9 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     addAndMakeVisible(tremoloWaveForm);
     addAndMakeVisible(tremoloFreqSlider);
 	addAndMakeVisible(tremoloDepthSlider);
+
+    addAndMakeVisible(promptBox);
+    addAndMakeVisible(generateButton);
 
     // ================= LABEL =================
     decibelLabel.setText ("Noise Level in dB", juce::dontSendNotification);
@@ -94,32 +109,41 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
 	tremoloFreqAttachment = std::make_unique<SliderAttachment>(
 		apvts, "tremoloFreq", tremoloFreqSlider);
 
-    // ================= EDITOR =================
-    setSize (600, 450);
+    setSize (600, 415);
 
-    startTimerHz (30); // GUI refresh only (e.g. analyser repaint)
+    startTimerHz (30); 
 }
 
-//==============================================================================
 PluginEditor::~PluginEditor() = default;
 
-//==============================================================================
 void PluginEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colours::black);
 }
 
-//==============================================================================
+void PluginEditor::generatePreset() {
+    auto promptText = promptBox.getText(); // UI thread
+    promptBox.setText("");
+
+    auto* job = new PresetGenerationJob(
+        openAIClient,
+        promptText,
+        [this](juce::var result) { applyPreset(result); }
+    );
+    threadPool.addJob(job, true);
+
+}
+
 void PluginEditor::resized()
 {
     auto area = getLocalBounds().reduced(10);
 
-    // --- Top: keyboard ---
+    // keyboard
     const int keyboardH = 120;
     keyboardComponent.setBounds(area.removeFromTop(keyboardH));
     area.removeFromTop(10); // gap
 
-    // --- Bottom: split into left/right with a gap ---
+    // split into left/right with a gap ---
     const int colGap = 10;
     auto left = area.removeFromLeft(area.getWidth() / 2);
     area.removeFromLeft(colGap);
@@ -139,7 +163,7 @@ void PluginEditor::resized()
         return row;
     };
 
-    // ----- LEFT: Waveform + Gain + Cutoffs -----
+    // Waveform + Gain + Cutoffs
     {
         auto row1 = takeRow(left);
         const int waveW = 140;
@@ -150,7 +174,7 @@ void PluginEditor::resized()
         cutoffHighSlider.setBounds(takeRow(left));
     }
 
-    // ----- RIGHT: ADSR stack -----
+    // ADSR stack
     {
         attackSlider.setBounds(takeRow(right));
         decaySlider.setBounds(takeRow(right));
@@ -174,31 +198,136 @@ void PluginEditor::resized()
         tremoloFreqSlider.setBounds(tremoloArea.removeFromLeft(tremoloArea.getWidth() / 2));
         tremoloArea.removeFromLeft(5);
 		tremoloDepthSlider.setBounds(takeRow(tremoloArea));
-
     }
 
     auto vibratoArea = juce::Rectangle<int>(
-        tremoloArea.getX(),
-        right.getBottom() + rowH + 10,
+        tremoloLabel.getX(),
+        right.getBottom() + rowH + 20,
         getWidth(),
-        rowH
+        rowH*1.5
     ).reduced(5, 0);
 
-    //vibrato
-    /* {
-        tremoloLabel.setBounds(vibratoArea.removeFromLeft(60));
-        tremoloButton.setBounds(vibratoArea.removeFromLeft(30));
-        tremoloWaveForm.setBounds(vibratoArea.removeFromLeft(waveForm.getWidth()));
-        vibratoArea.removeFromLeft(5);
-        tremoloFreqSlider.setBounds(vibratoArea.removeFromLeft(vibratoArea.getWidth() / 2));
-        vibratoArea.removeFromLeft(5);
-        tremoloDepthSlider.setBounds(takeRow(vibratoArea));
-    }*/
+    {
+        promptBox.setBounds(vibratoArea.removeFromLeft(470));
+        vibratoArea.removeFromLeft(10);
+        generateButton.setBounds(vibratoArea.removeFromLeft(80));
+    }
 }
 
 //==============================================================================
 void PluginEditor::timerCallback()
 {
-    // GUI-only updates (no DSP!)
-    //analyserComponent.repaint();
+    
 }
+
+bool PluginEditor::getParamsObject(const juce::var& root, juce::DynamicObject*& outParamsObj)
+{
+    outParamsObj = nullptr;
+
+    if (!root.isObject())
+        return false;
+
+    // Prefer { params: { ... } }
+    if (auto* rootObj = root.getDynamicObject())
+    {
+        auto paramsVar = rootObj->getProperty("params");
+        if (paramsVar.isObject())
+        {
+            outParamsObj = paramsVar.getDynamicObject();
+            return outParamsObj != nullptr;
+        }
+
+        // Fallback: treat root itself as params
+        outParamsObj = rootObj;
+        return true;
+    }
+
+    return false;
+}
+
+void PluginEditor::setParamFromFloat(const juce::String& paramId, float value)
+{
+    auto* p = processor.apvts.getParameter(paramId);
+    auto* rp = dynamic_cast<juce::RangedAudioParameter*>(p);
+    if (rp == nullptr)
+        return;
+
+    const auto range = rp->getNormalisableRange();
+
+    // Clamp in "real units"
+    const float clamped = juce::jlimit(range.start, range.end, value);
+    const float norm = range.convertTo0to1(clamped);
+
+    rp->beginChangeGesture();
+    rp->setValueNotifyingHost(norm);
+    rp->endChangeGesture();
+}
+
+void PluginEditor::setChoiceParamFromComboIndex(const juce::String& paramId, int comboIndex1toN)
+{
+    // ComboBoxes use 1..4 for items.
+
+    const int zeroBased = juce::jlimit(0, 3, comboIndex1toN - 1);
+    setParamFromFloat(paramId, (float)zeroBased);
+}
+
+void PluginEditor::applyPreset(const juce::var& result)
+{
+    jassert(juce::MessageManager::getInstance()->isThisTheMessageThread());
+
+    // Unwrap the job payload if present
+    if (auto* rootObj = result.getDynamicObject())
+    {
+        if (rootObj->hasProperty("ok"))
+        {
+            const bool ok = (bool)rootObj->getProperty("ok");
+            if (!ok)
+            {
+                DBG("Preset generation failed: " + rootObj->getProperty("error").toString());
+                return;
+            }
+
+            // Replace result with the actual preset JSON
+            const juce::var data = rootObj->getProperty("data");
+            applyPreset(data);
+            return;
+        }
+    }
+
+    // `result` should be either {params:{...}} or {...}
+    juce::DynamicObject* paramsObj = nullptr;
+    if (!getParamsObject(result, paramsObj) || paramsObj == nullptr)
+    {
+        DBG("applyPreset: JSON result does not contain params object.");
+        return;
+    }
+
+    for (const auto& prop : paramsObj->getProperties())
+    {
+        const juce::String id = prop.name.toString();
+        const juce::var v = prop.value;
+
+        if (id == "wave" || id == "tremoloWave")
+        {
+            int idx = v.isInt() ? (int)v
+                : (int)v.toString().getIntValue();
+
+            if (idx >= 1 && idx <= 4)      setChoiceParamFromComboIndex(id, idx);
+            else if (idx >= 0 && idx <= 3) setParamFromFloat(id, (float)idx);
+            continue;
+        }
+
+        float value = v.isDouble() || v.isInt()
+            ? (float)v
+            : (float)v.toString().getDoubleValue();
+
+        if (id == "tremoloOn" && v.isBool())
+            value = v ? 1.0f : 0.0f;
+
+        setParamFromFloat(id, value);
+    }
+
+    DBG("applyPreset: applied.");
+}
+
+

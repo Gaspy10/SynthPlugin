@@ -231,7 +231,6 @@ double maxiOsc::sinewave(double frequency) {
 	if ( phase >= 1.0 ) phase -= 1.0;
 	phase += (1./(maxiSettings::sampleRate/(frequency)));
 	return(output);
-
 }
 
 double maxiOsc::sinebuf4(double frequency) {

@@ -66,13 +66,31 @@ class MidiKeyboardComponent{
     handleNoteOff()
 }
 
+class OpenAIClient{
+	createTextResponse()
+}
+
+class PresetGenerationJob{
+	runJob()
+}
+
+class ThreadPool{
+	addJob()
+}
+
+PresetGenerationJob --> OpenAIClient
+WaveFormSettings --> AudioProcessorValueTreeState
+PluginEditor *-- "1" ThreadPool
+PluginEditor *-- "1" OpenAIClient
+ThreadPool *-- "1" PresetGenerationJob
 JuceSynthPluginAudioProcessor *-- "1" Synthesiser
+JuceSynthPluginAudioProcessor *-- "1" AudioProcessorValueTreeState
+PluginEditor --> AudioProcessorValueTreeState
 JuceSynthPluginAudioProcessor --> WavetableVoice
 WavetableVoice *-- "1" maxiOsc
 WavetableVoice *-- "1" maxiEnv
 WavetableVoice *-- "1" FIRFilter
 JuceSynthPluginAudioProcessor *-- "1" WaveFormSettings
-WaveFormSettings <-- PluginEditor
 Synthesiser *-- "10" WavetableVoice
 WavetableVoice --> WaveFormSettings
 JuceSynthPluginAudioProcessor *-- "1" maxiOscA
@@ -83,6 +101,5 @@ JuceSynthPluginAudioProcessor *-- "1" AudioBuffer
 AudioBuffer <-- WavetableVoice
 
 PluginEditor  *-- "1" MidiKeyboardComponent 
-
 
 @enduml

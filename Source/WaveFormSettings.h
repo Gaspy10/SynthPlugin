@@ -17,7 +17,6 @@ public:
 
     WaveForms getSelectedWaveForm() const noexcept;
 
-    // Linear gain (not dB) - same meaning as your old getVelocity()
     float getVelocity() const noexcept;
 
     float getCutoffLowFrequency() const noexcept;

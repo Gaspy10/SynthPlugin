@@ -1,12 +1,9 @@
 #pragma once
 #include <JuceHeader.h>
 
-// Your existing classes:
 #include "WavetableVoice.h"
 #include "WavetableSound.h"
 #include "WaveFormSettings.h"
-
-// If you use Maximilian:
 #include "maximilian.h"
 
 class JuceSynthPluginAudioProcessor : public juce::AudioProcessor
@@ -42,21 +39,20 @@ public:
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
 
-    // ----------------- Things your Editor expects -----------------
+    // editor expects: 
     juce::MidiKeyboardState keyboardState;
 
     juce::AudioProcessorValueTreeState apvts;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
 private:
-    // ----------------- Synth moved from SynthAudioSource -----------------
     juce::Synthesiser synth;
 	juce::AudioBuffer<double> lfoBuffer;
 	maxiOsc tremoloOsc;
 
     int samplesPerBlock;
 
-    // IMPORTANT: This must be processor-owned and NOT depend on GUI widgets.
+    // This must be processor-owned and NOT depend on GUI widgets.
     WaveFormSettings waveFormSettings;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(JuceSynthPluginAudioProcessor)
