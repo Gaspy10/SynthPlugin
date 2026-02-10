@@ -19,43 +19,44 @@ JuceSynthPluginAudioProcessor::createParameterLayout()
         juce::StringArray{ "Sine", "Square", "Triangle", "Sawtooth" }, 0));
 
     layout.add(std::make_unique<APF>(
-        "gain", "Gain (dB)", -24.0f, 24.0f, 0.0f));
+        "gain", "Gain (dB)", -3.0f, 3.0f, 0.1f));
 
     layout.add(std::make_unique<APF>(
-        "cutoffLow", "Cutoff Low", 20.0f, 20000.0f, 1000.0f));
+        "cutoffLow", "Cutoff Low", 
+        juce::NormalisableRange<float>(20, 20000, 1), 20));
 
     layout.add(std::make_unique<APF>(
-        "cutoffHigh", "Cutoff High", 20.0f, 20000.0f, 8000.0f));
+        "cutoffHigh", "Cutoff High", juce::NormalisableRange<float>(20, 20000, 1), 20000));
 
-    // ================= ADSR =================
+    // ADSR
     layout.add(std::make_unique<APF>(
         "attack", "Attack (ms)",
-        juce::NormalisableRange<float>(1.0f, 5000.0f, 0.0f, 0.5f),
+        juce::NormalisableRange<float>(1.0f, 5000.0f, 1, 0.5f),
         100.0f));
 
     layout.add(std::make_unique<APF>(
         "decay", "Decay (ms)",
-        juce::NormalisableRange<float>(1.0f, 5000.0f, 0.0f, 0.5f),
+        juce::NormalisableRange<float>(1.0f, 5000.0f, 1, 0.5f),
         500.0f));
 
     layout.add(std::make_unique<APF>(
         "sustain", "Sustain",
-        juce::NormalisableRange<float>(0.001f, 1.0f),
+        juce::NormalisableRange<float>(0.001f, 1.0f, 0.01f),
         0.8f));
 
     layout.add(std::make_unique<APF>(
         "release", "Release (ms)",
-        juce::NormalisableRange<float>(1.0f, 5000.0f, 0.0f, 0.5f),
+        juce::NormalisableRange<float>(1.0f, 5000.0f, 1, 0.5f),
         100.0f));
 
 	layout.add(std::make_unique<APF>(
 		"tremoloFreq", "Tremolo Frequency",
-		juce::NormalisableRange<float>(0.1f, 20.0f),
+		juce::NormalisableRange<float>(0.1f, 20.0f, 0.1f),
 		5.0f));
 
 	layout.add(std::make_unique<APF>(
 		"tremoloDepth", "Tremolo Depth",
-		juce::NormalisableRange<float>(0.0f, 1.0f),
+		juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f),
 		0.5f));
 
     layout.add(std::make_unique<juce::AudioParameterBool>(

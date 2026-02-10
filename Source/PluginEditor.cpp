@@ -1,6 +1,25 @@
 #include "PluginEditor.h"
 
-//==============================================================================
+static void setUnitFormatting(juce::Slider& s,
+    const juce::String& unit,
+    int decimals,
+    double scale = 1.0) // display = value * scale
+{
+    s.textFromValueFunction = [=](double v)
+        {
+            const double shown = v * scale;
+            return juce::String(shown, decimals) + " " + unit;
+        };
+
+    // Allows typing "123 ms" / "123" etc.
+    s.valueFromTextFunction = [=](const juce::String& text)
+        {
+            auto t = text.trim().upToFirstOccurrenceOf(" ", false, false); // strips " ms"
+            const double shown = t.getDoubleValue();
+            return shown / scale;
+        };
+}
+
 PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     : AudioProcessorEditor (&p),
       processor (p),
@@ -22,8 +41,11 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     addAndMakeVisible (keyboardComponent);
 
     addAndMakeVisible (waveForm);
+
+    setSliderProperties(decibelSlider);
     addAndMakeVisible (decibelSlider);
     addAndMakeVisible (decibelLabel);
+    decibelLabel.setJustificationType(juce::Justification::centredLeft);
 	
     addAndMakeVisible (cutoffLowSlider);
     addAndMakeVisible (cutoffHighSlider);
@@ -32,6 +54,40 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     addAndMakeVisible (decaySlider);
     addAndMakeVisible (releaseSlider);
     addAndMakeVisible (sustainSlider);
+
+    promptBox.setFont(juce::Font(20.0f));
+
+    promptBox.setTextToShowWhenEmpty(
+        "Describe the sound you want...",
+        juce::Colours::grey
+    );
+
+
+    auto initTopLabel = [&](juce::Label& lbl, const juce::String& text)
+        {
+            lbl.setText(text, juce::dontSendNotification);
+            lbl.setJustificationType(juce::Justification::centred);
+            lbl.setColour(juce::Label::textColourId, juce::Colours::white);
+            lbl.setFont(juce::Font(13.0f));
+            addAndMakeVisible(lbl);
+        };
+
+    initTopLabel(attackLabel, "Attack");
+    initTopLabel(decayLabel, "Decay");
+    initTopLabel(sustainLabel, "Sustain");
+    initTopLabel(releaseLabel, "Release");
+    initTopLabel(decibelLabel, "Gain:");
+
+    initTopLabel(lowPassLabel, "Low-pass filter:");
+    initTopLabel(highPassLabel, "High-pass filter:");
+
+    initTopLabel(tremoloFreqLabel, "Tremolo freq:");
+    initTopLabel(tremoloDepthLabel, "Tremolo depth:");
+
+    setSliderProperties(attackSlider);
+    setSliderProperties(decaySlider);
+    setSliderProperties(releaseSlider);
+    setSliderProperties(sustainSlider);
 
     addAndMakeVisible(tremoloLabel);
 	addAndMakeVisible (tremoloButton);
@@ -42,21 +98,20 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     addAndMakeVisible(promptBox);
     addAndMakeVisible(generateButton);
 
-    // ================= LABEL =================
-    decibelLabel.setText ("Noise Level in dB", juce::dontSendNotification);
+    // Label
 	tremoloLabel.setText("Tremolo: ", juce::dontSendNotification);
 
-    // ================= SLIDERS =================
-    decibelSlider.setRange (-24.0, 24.0);
+    // Sliders
+    decibelSlider.setRange (-24.0, 24.0, 0.1);
     decibelSlider.setTextBoxStyle (juce::Slider::TextBoxRight, false, 100, 20);
 
-    cutoffLowSlider.setRange (20.0, 20000.0);
-    cutoffHighSlider.setRange (20.0, 20000.0);
+    cutoffLowSlider.setRange (20.0, 20000.0, 1);
+    cutoffHighSlider.setRange (20.0, 20000.0, 1);
 
-	attackSlider.setRange(0, 5000.0);
-	sustainSlider.setRange(0.1, 1.0);
-	decaySlider.setRange(0, 5000.0);
-	releaseSlider.setRange(0, 5000.0);
+	attackSlider.setRange(0, 5000.0, 1);
+	sustainSlider.setRange(0.1, 1.0, 0.01);
+	decaySlider.setRange(0, 5000.0, 1);
+	releaseSlider.setRange(0, 5000.0, 1);
 
     waveForm.addItem ("Sine", 1);
     waveForm.addItem ("Square", 2);
@@ -70,7 +125,23 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
 	tremoloFreqSlider.setRange(0.1, 20.0);
 	tremoloDepthSlider.setRange(0.0, 1.0);
 
-    // ================= PARAMETER ATTACHMENTS =================
+    // Gain: dB
+    decibelSlider.setTextValueSuffix(" dB");
+
+    attackSlider.setTextValueSuffix(" ms");
+    decaySlider.setTextValueSuffix(" ms");
+    releaseSlider.setTextValueSuffix(" ms");
+
+    // Filters
+    cutoffLowSlider.setTextValueSuffix(" Hz");
+    cutoffHighSlider.setTextValueSuffix(" Hz");
+
+    // Tremolo
+    tremoloFreqSlider.setTextValueSuffix(" Hz");
+
+    tremoloDepthSlider.setTextValueSuffix(" %");
+
+    // Parameter attachments
     auto& apvts = processor.apvts;
 
     gainAttachment = std::make_unique<SliderAttachment> (
@@ -109,9 +180,15 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
 	tremoloFreqAttachment = std::make_unique<SliderAttachment>(
 		apvts, "tremoloFreq", tremoloFreqSlider);
 
-    setSize (600, 415);
+    setSize (650, 415);
 
     startTimerHz (30); 
+}
+
+void PluginEditor::setSliderProperties(juce::Slider& s) {
+    s.setLookAndFeel(&myLookAndFeelV1);
+    s.setSliderStyle(Slider::RotaryVerticalDrag);
+    s.setTextBoxStyle(Slider::TextBoxBelow, false, 60, 20);
 }
 
 PluginEditor::~PluginEditor() = default;
@@ -150,11 +227,13 @@ void PluginEditor::resized()
     auto right = area;
 
     // Helpers
-    const int rowH = 32;
+    const int rowH = 40;
     const int gap = 8;
 
-    right.setHeight(4 * rowH + 4 * gap);
-    left.setHeight(4* rowH + 4 * gap);
+    const int leftRowH = 44;
+
+    right.setHeight(3 * rowH + 2 * gap); // there are the knobs so nonsense
+    left.setHeight(3 * leftRowH + 2 * gap); 
 
     auto takeRow = [&](juce::Rectangle<int>& r)
     {
@@ -163,58 +242,125 @@ void PluginEditor::resized()
         return row;
     };
 
+    auto leftTakeRow = [&](juce::Rectangle<int>& r)
+    {
+        auto row = r.removeFromTop(leftRowH);
+        r.removeFromTop(gap);
+        return row;
+    };
+
     // Waveform + Gain + Cutoffs
     {
-        auto row1 = takeRow(left);
-        const int waveW = 140;
-        waveForm.setBounds(row1.removeFromLeft(waveW));
-        decibelSlider.setBounds(row1);
+        const int labelW = 100;
 
-        cutoffLowSlider.setBounds(takeRow(left));
-        cutoffHighSlider.setBounds(takeRow(left));
+        // Row 1: Waveform + Gain
+        auto row1 = leftTakeRow(left);
+        auto waveFormArea = row1.removeFromLeft(100);
+
+        waveForm.setBounds(
+            waveFormArea.withSizeKeepingCentre(waveFormArea.getWidth(), 33)
+        );
+
+        {
+            auto labelArea = row1.removeFromLeft(50);
+            auto sliderArea = row1;
+
+            decibelLabel.setBounds(labelArea);
+            decibelSlider.setBounds(sliderArea);
+        }
+
+        // Row 2: High-pass
+        auto row2 = leftTakeRow(left);
+        {
+            auto labelArea = row2.removeFromLeft(labelW);
+            auto sliderArea = row2;
+
+            highPassLabel.setBounds(labelArea);
+            cutoffLowSlider.setBounds(sliderArea);
+        }
+
+        // Row 3: Low-pass
+        auto row3 = leftTakeRow(left);
+        {
+            auto labelArea = row3.removeFromLeft(labelW);
+            auto sliderArea = row3;
+
+            lowPassLabel.setBounds(labelArea);
+            cutoffHighSlider.setBounds(sliderArea);
+        }
     }
+
 
     // ADSR stack
     {
-        attackSlider.setBounds(takeRow(right));
-        decaySlider.setBounds(takeRow(right));
-        sustainSlider.setBounds(takeRow(right));
-        releaseSlider.setBounds(takeRow(right));
+        const int knobW = 75;
+        const int labelH = 16;
+
+        auto placeKnobWithLabel = [&](juce::Label& lbl, juce::Slider& s, juce::Rectangle<int>& r)
+        {
+            auto cell = r.removeFromLeft(knobW);
+            lbl.setBounds(cell.removeFromTop(labelH));
+            s.setBounds(cell); // remaining area
+        };
+
+        placeKnobWithLabel(attackLabel, attackSlider, right);
+        placeKnobWithLabel(decayLabel, decaySlider, right);
+        placeKnobWithLabel(sustainLabel, sustainSlider, right);
+        placeKnobWithLabel(releaseLabel, releaseSlider, right);
     }
 
     auto tremoloArea = juce::Rectangle<int>(
         left.getX(),
-        right.getBottom() + 10,
+        left.getBottom() + 5,
         getWidth(),
         rowH
     ).reduced(5, 0);
 
     //tremolo
     {
+        const int labelW = 80;
+
         tremoloLabel.setBounds(tremoloArea.removeFromLeft(60));
         tremoloButton.setBounds(tremoloArea.removeFromLeft(30));
-        tremoloWaveForm.setBounds(tremoloArea.removeFromLeft(waveForm.getWidth()));
-        tremoloArea.removeFromLeft(5);
-        tremoloFreqSlider.setBounds(tremoloArea.removeFromLeft(tremoloArea.getWidth() / 2));
-        tremoloArea.removeFromLeft(5);
-		tremoloDepthSlider.setBounds(takeRow(tremoloArea));
+
+        auto tremoloWaveFormArea = tremoloArea.removeFromLeft(waveForm.getWidth());
+        tremoloWaveForm.setBounds(
+            tremoloWaveFormArea.withSizeKeepingCentre(tremoloWaveFormArea.getWidth(), 33)
+        );
+        tremoloArea.removeFromLeft(10); // gap
+
+        // ---- Tremolo frequency ----
+        {
+            auto freqArea = tremoloArea.removeFromLeft(tremoloArea.getWidth() / 2);
+            tremoloFreqLabel.setBounds(freqArea.removeFromLeft(labelW));
+            tremoloFreqSlider.setBounds(freqArea);
+        }
+
+        tremoloArea.removeFromLeft(10); // gap
+
+        // ---- Tremolo depth ----
+        {
+            auto depthArea = tremoloArea;
+            tremoloDepthLabel.setBounds(depthArea.removeFromLeft(labelW));
+            tremoloDepthSlider.setBounds(depthArea);
+        }
     }
+
 
     auto vibratoArea = juce::Rectangle<int>(
         tremoloLabel.getX(),
-        right.getBottom() + rowH + 20,
+        left.getBottom() + rowH + 15,
         getWidth(),
         rowH*1.5
     ).reduced(5, 0);
 
     {
-        promptBox.setBounds(vibratoArea.removeFromLeft(470));
+        promptBox.setBounds(vibratoArea.removeFromLeft(525));
         vibratoArea.removeFromLeft(10);
         generateButton.setBounds(vibratoArea.removeFromLeft(80));
     }
 }
 
-//==============================================================================
 void PluginEditor::timerCallback()
 {
     

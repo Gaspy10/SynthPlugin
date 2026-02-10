@@ -4,6 +4,7 @@
 #include "PluginProcessor.h"
 #include "PresetGenerationJob.h"
 #include "OpenAIClient.h"
+#include "myLookAndFeel.h"
 
 class PluginEditor : public juce::AudioProcessorEditor,
                      private juce::Timer
@@ -14,6 +15,7 @@ public:
 
     void paint (juce::Graphics&) override;
     void resized() override;
+    void setSliderProperties(juce::Slider&);
 
 private:
     juce::ThreadPool threadPool{ 1 };
@@ -37,13 +39,13 @@ private:
     juce::Slider decibelSlider;
     juce::Slider cutoffLowSlider;
     juce::Slider cutoffHighSlider;
-
-    juce::Label decibelLabel;
-
+    
     juce::Slider attackSlider;
 	juce::Slider decaySlider;
 	juce::Slider sustainSlider;
 	juce::Slider releaseSlider;
+
+    juce::Label attackLabel, decayLabel, sustainLabel, releaseLabel, decibelLabel, lowPassLabel, highPassLabel, tremoloFreqLabel, tremoloDepthLabel;
 
     juce::Label tremoloLabel;
     juce::ToggleButton tremoloButton;
@@ -52,6 +54,8 @@ private:
 
     juce::TextEditor promptBox;
     juce::TextButton generateButton{ "Generate preset" };
+
+    myLookAndFeelV1 myLookAndFeelV1;
 
     // GUI-only analyser (no audio thread access!)
     //AnalyserComponent analyserComponent;

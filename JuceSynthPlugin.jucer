@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="tJmNN8" name="JuceSynthPlugin" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
-  <MAINGROUP id="mDIx8V" name="JuceSynthPlugin">
+<JUCERPROJECT id="tJmNN8" name="Canya" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth,pluginProducesMidiOut,pluginWantsMidiIn"
+              pluginName="Canya">
+  <MAINGROUP id="mDIx8V" name="Canya">
     <GROUP id="{E03966CC-CB49-4BD6-72C6-B2CA2EAD5769}" name="Source">
+      <GROUP id="{8E09198B-1C5B-359F-EB34-F67FFAF0FC71}" name="CustomSlider">
+        <FILE id="nUeMSt" name="myLookAndFeel.cpp" compile="1" resource="0"
+              file="Source/myLookAndFeel.cpp"/>
+        <FILE id="eokgI6" name="myLookAndFeel.h" compile="0" resource="0" file="Source/myLookAndFeel.h"/>
+      </GROUP>
       <FILE id="a1inZA" name="OpenAIClient.cpp" compile="1" resource="0"
             file="Source/OpenAIClient.cpp"/>
       <FILE id="i7VhWZ" name="OpenAIClient.h" compile="0" resource="0" file="Source/OpenAIClient.h"/>
