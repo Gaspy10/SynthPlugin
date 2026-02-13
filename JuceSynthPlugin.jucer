@@ -5,6 +5,10 @@
               pluginName="Canya">
   <MAINGROUP id="mDIx8V" name="Canya">
     <GROUP id="{E03966CC-CB49-4BD6-72C6-B2CA2EAD5769}" name="Source">
+      <GROUP id="{E4AF0C79-23AA-F3DA-4003-6F0E1B66AB03}" name="Images">
+        <FILE id="Shhb0y" name="knob1.png" compile="0" resource="1" file="../../../Desktop/knob1.png"/>
+        <FILE id="fOZbiS" name="knob2.png" compile="0" resource="1" file="../../../Desktop/knob2.png"/>
+      </GROUP>
       <FILE id="Rwnhmy" name="Secrets.h" compile="0" resource="0" file="Source/Secrets.h"/>
       <GROUP id="{8E09198B-1C5B-359F-EB34-F67FFAF0FC71}" name="CustomSlider">
         <FILE id="nUeMSt" name="myLookAndFeel.cpp" compile="1" resource="0"

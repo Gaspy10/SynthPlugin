@@ -41,7 +41,8 @@ inline const char* getOpenAIKey()
 1. Open the `.jucer` project file in Projucer.
 2. If prompted, set the correct JUCE modules path.
 3. Export the project for your target platform (Visual Studio, Xcode, or Makefile).
-4. Build the project:
+4. Paste images from Images folder to your desktop (knob1.png and knob2.png).
+5. Build the project:
    - In Visual Studio or Xcode: build in **Release** configuration.
    - When using the generated Makefile: open a terminal in the project’s `Builds/LinuxMakefile` directory and run:
 
@@ -49,5 +50,5 @@ inline const char* getOpenAIKey()
      make CONFIG=Release
      ```
 
-5. After a successful build, locate the compiled `.vst3` file in the build output directory.
-6. Copy the `.vst3` file to your system’s VST3 plugin folder and load it in your DAW.
+6. After a successful build, locate the compiled `.vst3` file in the build output directory.
+7. Copy the `.vst3` file to your system’s VST3 plugin folder and load it in your DAW.

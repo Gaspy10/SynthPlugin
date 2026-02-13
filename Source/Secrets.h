@@ -14,6 +14,6 @@ namespace Secrets
 {
     inline const char* getOpenAIKey()
     {
-        return "YOUR_API_KEY_HERE";
+        return "";
     }
 }
