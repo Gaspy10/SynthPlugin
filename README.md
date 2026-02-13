@@ -27,7 +27,7 @@ It combines sound synthesis with optional AI-based preset generation.
 
 ## API Key Setup
 
-To use AI preset generation, open `Secrets.h` and replace the placeholder with your own API key:
+To use AI preset generation, open `Secrets.h` and replace the placeholder with your own OpenAI API key:
 
 ```cpp
 inline const char* getOpenAIKey()
