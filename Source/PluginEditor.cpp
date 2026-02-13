@@ -20,13 +20,13 @@ static void setUnitFormatting(juce::Slider& s,
         };
 }
 
-PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
-    : AudioProcessorEditor (&p),
-      processor (p),
-      keyboardComponent (processor.keyboardState,
-                         juce::MidiKeyboardComponent::horizontalKeyboard),
-        openAIClient(OpenAIClient::Config{
-        /*apiKey*/   "",
+PluginEditor::PluginEditor(JuceSynthPluginAudioProcessor& p)
+    : AudioProcessorEditor(&p),
+    processor(p),
+    keyboardComponent(processor.keyboardState,
+        juce::MidiKeyboardComponent::horizontalKeyboard),
+    openAIClient(OpenAIClient::Config{
+        /*apiKey*/ Secrets::getOpenAIKey(),
         /*model*/    "gpt-5.2",
         /*timeoutMs*/15000,
         /*maxOutputTokens*/500,
@@ -39,6 +39,8 @@ PluginEditor::PluginEditor (JuceSynthPluginAudioProcessor& p)
     };
 
     addAndMakeVisible (keyboardComponent);
+
+    keyboardComponent.setOctaveForMiddleC(5);
 
     addAndMakeVisible (waveForm);
 

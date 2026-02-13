@@ -5,6 +5,7 @@
 #include "PresetGenerationJob.h"
 #include "OpenAIClient.h"
 #include "myLookAndFeel.h"
+#include "Secrets.h"
 
 class PluginEditor : public juce::AudioProcessorEditor,
                      private juce::Timer
