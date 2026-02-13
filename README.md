@@ -34,6 +34,7 @@ inline const char* getOpenAIKey()
 {
     return "YOUR_OPENAI_API_KEY_HERE";
 }
+```
 
 ## Build Instructions
 
